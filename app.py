@@ -7,12 +7,11 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-FINNHUB_KEY = os.getenv('FINNHUB_KEY', 'ctush59r01qhl4akdi4g')
 COINGECKO_API = 'https://api.coingecko.com/api/v3'
 
 @app.route('/')
 def home():
-    return jsonify({'status': 'online', 'service': 'Silkk Intelligence API'})
+    return jsonify({'status': 'online', 'service': 'Silkk Intelligence API', 'version': '1.0'})
 
 @app.route('/api/crypto')
 def get_crypto():
@@ -31,14 +30,31 @@ def get_crypto():
         if response.status_code == 200:
             data = response.json()
             return jsonify({
-                'bitcoin': {'price': data.get('bitcoin', {}).get('usd', 89133), 'change': data.get('bitcoin', {}).get('usd_24h_change', 0.66)},
-                'ethereum': {'price': data.get('ethereum', {}).get('usd', 2847), 'change': data.get('ethereum', {}).get('usd_24h_change', 1.23)},
-                'solana': {'price': data.get('solana', {}).get('usd', 148.32), 'change': data.get('solana', {}).get('usd_24h_change', 3.45)},
-                'monero': {'price': data.get('monero', {}).get('usd', 247.82), 'change': data.get('monero', {}).get('usd_24h_change', 4.67)},
-                'zcash': {'price': data.get('zcash', {}).get('usd', 68.43), 'change': data.get('zcash', {}).get('usd_24h_change', 3.21)}
+                'bitcoin': {
+                    'price': data.get('bitcoin', {}).get('usd', 89133),
+                    'change': data.get('bitcoin', {}).get('usd_24h_change', 0.66)
+                },
+                'ethereum': {
+                    'price': data.get('ethereum', {}).get('usd', 2847),
+                    'change': data.get('ethereum', {}).get('usd_24h_change', 1.23)
+                },
+                'solana': {
+                    'price': data.get('solana', {}).get('usd', 148.32),
+                    'change': data.get('solana', {}).get('usd_24h_change', 3.45)
+                },
+                'monero': {
+                    'price': data.get('monero', {}).get('usd', 247.82),
+                    'change': data.get('monero', {}).get('usd_24h_change', 4.67)
+                },
+                'zcash': {
+                    'price': data.get('zcash', {}).get('usd', 68.43),
+                    'change': data.get('zcash', {}).get('usd_24h_change', 3.21)
+                }
             })
+        else:
+            return jsonify({'error': 'CoinGecko API failed', 'status': response.status_code}), 500
     except Exception as e:
-        return jsonify({}), 500
+        return jsonify({'error': str(e), 'type': 'exception'}), 500
 
 @app.route('/api/stocks')
 def get_stocks():
@@ -57,4 +73,5 @@ def get_commodities():
     })
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.getenv('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
